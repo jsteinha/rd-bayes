@@ -8,7 +8,7 @@ int main(int argc, char** argv){
     loadNet();
     loadAllTargets();
 
-    Infer* infer = new InferNaieve();
+    Infer* infer = new InferNaive();
     // only interested in posterior marginal for a single node
     infer->compile(getNet(), getTargets()[0]);
     
