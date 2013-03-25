@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include "smile/smile.h"
 
-const char* int2str(int status){
-    return status ? "no" : "yes"; // oddly, 0 means yes
-}
-
 double getProbability(DSL_nodeValue* value, int stateIndex){
     DSL_sysCoordinates coord(*value);
     coord[0] = stateIndex;
@@ -20,7 +16,7 @@ double getProbability(DSL_node* node, const char* stateName){
 
 int main(){
     DSL_network net;
-    net.ReadFile("asia.net", DSL_HUGIN_FORMAT);
+    net.ReadFile("data/asia.net", DSL_HUGIN_FORMAT);
     net.SetDefaultBNAlgorithm(DSL_ALG_BN_LAURITZEN);
 
     int asia = net.FindNode("asia");
