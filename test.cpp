@@ -25,35 +25,39 @@ void toc(int loud){
 }
 void toc(){toc(0);}
 
-int main(){
+int main(int argc, char** argv){
     const char* dataset = "link";
     char filename[1000];
     sprintf(filename,"data/%s.net", dataset);
     DSL_network net;
-    printf("Reading from %s... ", filename); fflush(stdout);
-    tic(); net.ReadFile(filename, DSL_HUGIN_FORMAT); toc(0);
+    //printf("Reading from %s... ", filename); fflush(stdout);
+    /*tic();*/ net.ReadFile(filename, DSL_HUGIN_FORMAT); /*toc(0);*/
     int networkSize = net.GetNumberOfNodes();
-    printf("Network has %d nodes total.\n", networkSize);
+    //printf("Network has %d nodes total.\n", networkSize);
 
     net.SetDefaultBNAlgorithm(DSL_ALG_BN_LAURITZEN);
+    int targetID; sscanf(argv[1], "%d", &targetID);
+    printf("Setting node %d to be target node... ", targetID); fflush(stdout);
+    net.SetTarget(targetID); // only interested in posterior marginal for a single node
 
-    printf("Computing initial beliefs... "); fflush(stdout);
-    tic(); net.UpdateBeliefs(); toc(0);
+    //printf("Computing initial beliefs... "); fflush(stdout);
+    //tic(); net.UpdateBeliefs(); toc(0);
 
     sprintf(filename, "data/%s.cases", dataset);
-    printf("Opening %s...\n", filename);
+    //printf("Opening %s...\n", filename);
     FILE *fin = fopen(filename, "r");
     
     for(int caseNum = 1; !feof(fin); caseNum++){
         net.ClearAllEvidence();
-        printf("Reading test case number %d\n", caseNum);
+        //if(caseNum == 27) printf("Reading test case number %d\n", caseNum);
         int N; fscanf(fin, "%d", &N);
-        printf("Conditioning on %d nodes\n", N);
+        //if(caseNum == 27) printf("Conditioning on %d nodes\n", N);
         for(int n = 0; n < N; n++){
             int nodeID, outcomeID;
             fscanf(fin, "%d%d", &nodeID, &outcomeID);
             net.GetNode(nodeID)->Value()->SetEvidence(outcomeID);
         }
+        if(caseNum != 27) continue;
         printf("Recomputing beliefs... "); fflush(stdout);
         tic(); net.UpdateBeliefs(); toc();
     }
