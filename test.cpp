@@ -1,23 +1,27 @@
 #include <stdio.h>
 #include "smile/smile.h"
 #include "util.h"
+#include "task.h"
 #include "infer.h"
 
 int main(int argc, char** argv){
-    setTask("link");
-    loadNet();
-    loadAllTargets();
 
-    Infer* infer = new InferNaive();
-    // only interested in posterior marginal for a single node
-    infer->compile(getNet(), getTargets()[0]);
-    
+  Task linkTask = Task("link");
+  linkTask.loadNet();
+  linkTask.loadAllTargets();
 
-    loadAllCases();
-    printf("Calling inference algorithm...\n");
-    tic();
-    infer->infer(getCases()[26]);
-    toc(1);
+  Infer* infer = new InferNaive();
 
-    return 0;    
+  // only interested in posterior marginal for a single node
+  infer->compile(linkTask.getNet(), linkTask.getTargets()[0]);
+
+  linkTask.loadAllCases();
+
+  printf("Calling inference algorithm...\n");
+  
+  linkTask.tic();
+  infer->infer(linkTask.getCases()[26]);
+  linkTask.toc(1);
+
+  return 0;    
 }
