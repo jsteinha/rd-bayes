@@ -45,17 +45,36 @@ void loadNet(){
     }
     myNet.ReadFile(filename, DSL_HUGIN_FORMAT);
 }
+void loadNetUAI(){
+    sprintf(filename, "data/%s.uai", taskname);
+    if(verbose){
+        printf("Reading network from %s...\n", filename);
+    }
+    myNet.ReadFile(filename, DSL_ERGO_FORMAT);
+}
 DSL_network getNet(){
     return myNet;
 }
 
 vector<map<int,int> > myCases;
+void finishLoadingCases(void);
 void loadAllCases(){
     myCases.clear();
     sprintf(filename, "data/%s.cases", taskname);
     if(verbose){
         printf("Reading cases from %s...\n", filename);
     }
+    finishLoadingCases();
+}
+void loadAllCasesUAI(){
+    myCases.clear();
+    sprintf(filename, "data/%s.uai.evid", taskname);
+    if(verbose){
+        printf("Reading cases from %s...\n", filename);
+    }
+    finishLoadingCases();
+}
+void finishLoadingCases(){
     FILE *fin = fopen(filename, "r");
     int numCases;
     for(numCases=0; !feof(fin); numCases++){
@@ -102,6 +121,12 @@ void loadAllTargets(){
         myTargets.push_back(targetID);
     }
     fclose(fin);
+}
+void loadRandomTargets(int numTargets){
+    myTargets.clear();
+    for(int i = 0; i < numTargets; i++){
+        myTargets.push_back(rand()%myNet.GetNumberOfNodes());
+    }
 }
 int numTargets(){
     return myTargets.size();
