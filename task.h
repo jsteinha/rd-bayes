@@ -1,16 +1,15 @@
 #include "smile/smile.h"
+#include <assert.h>
 #include <algorithm>
 #include <map>
 #include <vector>
 using namespace std;
 
-int verbose = 1;
-
-
 class Task {
 
  private:
 
+  int taskType;
   long long int start;
   long long int end;
   char taskname[1000];
@@ -20,8 +19,10 @@ class Task {
   vector<int> myTargets;
 
  public:
+  const static int BNLEARN = 1, UAI = 2;
 
-  Task (const char* tn){
+  Task (const char* tn, int theTaskType){
+    taskType = theTaskType;
     sprintf(taskname, "%s", tn);
     if (verbose>0){
       printf("Task set to \"%s\"\n", taskname);
@@ -44,6 +45,17 @@ class Task {
   }
 
   void loadNet(){
+    if(taskType == BNLEARN)
+      loadNetHugin();
+    else if(taskType == UAI)
+      loadNetUAI();
+    else {
+      printf("Could not resolve task type.\n");
+      assert(false);
+    }
+  }
+
+  void loadNetHugin(){
     sprintf(filename, "data/%s.net", taskname);
     if (verbose){
       printf("Reading network from %s...\n", filename);
@@ -51,39 +63,68 @@ class Task {
     myNet.ReadFile(filename, DSL_HUGIN_FORMAT);
   }
 
+  void loadNetUAI(){
+    sprintf(filename, "data/%s.uai", taskname);
+    if(verbose){
+        printf("Reading network from %s...\n", filename);
+    }
+    myNet.ReadFile(filename, DSL_ERGO_FORMAT);
+  }
+
   DSL_network getNet(){
     return myNet;
   }
 
   void loadAllCases(){
-    myCases.clear();
-    sprintf(filename, "data/%s.cases", taskname);
-    if (verbose){
-      printf("Reading cases from %s...\n", filename);
+    if(taskType == BNLEARN)
+      loadAllCasesHugin();
+    else if(taskType == UAI)
+      loadAllCasesUAI();
+    else {
+      printf("Could not resolve task type.\n");
+      assert(false);
     }
-    FILE *fin = fopen(filename, "r");
-    int numCases;
-    for (numCases=0; !feof(fin); numCases++){
-      map<int,int> curCase;
-      int N;
-      if (fscanf(fin,"%d", &N) == EOF){
-        break; // then we are at the end of the file
+  }
+
+  void loadAllCasesHugin(){
+      myCases.clear();
+      sprintf(filename, "data/%s.cases", taskname);
+      if(verbose){
+          printf("Reading cases from %s...\n", filename);
       }
-      for (int n = 0; n < N; n++){
-        int nodeID, outcomeID;
-        fscanf(fin, "%d%d", &nodeID, &outcomeID);
-        /*if(verbose){
-          printf("case: %d, node: %d, outcome: %d\n", numCases, nodeID, outcomeID);
-          }*/
-        assert(curCase.count(nodeID)==0);
-        curCase[nodeID] = outcomeID;
+      finishLoadingCases();
+  }
+
+  void loadAllCasesUAI(){
+      myCases.clear();
+      sprintf(filename, "data/%s.uai.evid", taskname);
+      if(verbose){
+          printf("Reading cases from %s...\n", filename);
       }
-      myCases.push_back(curCase);
-    }
-    if (verbose){
-      printf("%d cases read.\n", numCases);
-    }
-    fclose(fin);
+      finishLoadingCases();
+  }
+
+  void finishLoadingCases(){
+      FILE *fin = fopen(filename, "r");
+      int numCases;
+      for(numCases=0; !feof(fin); numCases++){
+          map<int,int> curCase;
+          int N;
+          if(fscanf(fin,"%d", &N) == EOF){
+              break; // then we are at the end of the file
+          }
+          for(int n = 0; n < N; n++){
+              int nodeID, outcomeID;
+              fscanf(fin, "%d%d", &nodeID, &outcomeID);
+              assert(curCase.count(nodeID)==0);
+              curCase[nodeID] = outcomeID;
+          }
+          myCases.push_back(curCase);
+      }
+      if(verbose){
+          printf("%d cases read.\n", numCases);
+      }
+      fclose(fin);
   }
 
   int numCases(){
@@ -109,6 +150,12 @@ class Task {
       myTargets.push_back(targetID);
     }
     fclose(fin);
+  }
+  void loadRandomTargets(int numTargets){
+      myTargets.clear();
+      for(int i = 0; i < numTargets; i++){
+          myTargets.push_back(rand()%myNet.GetNumberOfNodes());
+      }
   }
   int numTargets(){
     return myTargets.size();

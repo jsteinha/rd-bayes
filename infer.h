@@ -1,4 +1,6 @@
 #include "smile/smile.h"
+#include <map>
+using namespace std;
 
 class Infer {
     public:
