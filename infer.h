@@ -6,7 +6,7 @@ class Infer {
         virtual DSL_nodeValue* infer(map<int,int> evidence) = 0;
 };
 
-class InferNaieve : public Infer {
+class InferNaive : public Infer {
     private:
         DSL_network myNet;
         int myTargetID;

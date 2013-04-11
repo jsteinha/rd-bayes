@@ -1,17 +1,14 @@
 #include "smile/smile.h"
-#include <algorithm>
-#include <map>
-#include <vector>
-using namespace std;
 
 double getProbability(DSL_nodeValue* value, int stateIndex){
-    DSL_sysCoordinates coord(*value);
-    coord[0] = stateIndex;
-    coord.GoToCurrentPosition();
-    return coord.UncheckedValue();
+  DSL_sysCoordinates coord(*value);
+  coord[0] = stateIndex;
+  coord.GoToCurrentPosition();
+  return coord.UncheckedValue();
 }
 
 double getProbability(DSL_node* node, const char* stateName){
+<<<<<<< HEAD
     DSL_nodeValue* value = node->Value();
     int stateIndex = node->Definition()->GetOutcomesNames()->FindPosition(stateName);
     return getProbability(value, stateIndex);
@@ -133,4 +130,9 @@ int numTargets(){
 }
 vector<int> getTargets(){
     return myTargets;
+=======
+  DSL_nodeValue* value = node->Value();
+  int stateIndex = node->Definition()->GetOutcomesNames()->FindPosition(stateName);
+  return getProbability(value, stateIndex);
+>>>>>>> 1f85fb22640434b6ec221aaf878bba87d86e5da1
 }
