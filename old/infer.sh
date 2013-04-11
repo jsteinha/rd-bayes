@@ -2,6 +2,6 @@
 n=1
 while :
 do
-    ./inferAll $n pigs 0 25
+    ./inferAll $n link 0 25
     let n=n+1
 done
